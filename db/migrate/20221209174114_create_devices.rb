@@ -3,6 +3,7 @@ class CreateDevices < ActiveRecord::Migration[7.0]
     create_table :devices do |t|
       t.integer :device_id, null: false
       t.references :user, null: false, foreign_key: true
+      t.boolean :blocked, default: false
       t.timestamps
     end
     add_index :devices, :device_id, unique: true

@@ -1,1 +1,1 @@
-json.extract @transaction, :transaction_id, :recommendation
+# json.extract @transaction, :transaction_id, :recommendation

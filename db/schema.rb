@@ -16,6 +16,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_09_175142) do
 
   create_table "cards", force: :cascade do |t|
     t.string "card_number", null: false
+    t.boolean "blocked", default: false
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -26,6 +27,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_09_175142) do
   create_table "devices", force: :cascade do |t|
     t.integer "device_id", null: false
     t.bigint "user_id", null: false
+    t.boolean "blocked", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["device_id"], name: "index_devices_on_device_id", unique: true
@@ -34,6 +36,8 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_09_175142) do
 
   create_table "merchants", force: :cascade do |t|
     t.integer "merchant_id", null: false
+    t.boolean "blocked", default: false
+    t.integer "chargeback_count", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["merchant_id"], name: "index_merchants_on_merchant_id", unique: true
@@ -45,10 +49,9 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_09_175142) do
     t.bigint "user_id", null: false
     t.bigint "device_id"
     t.bigint "card_id", null: false
-    t.string "transaction_date", null: false
+    t.datetime "transaction_date", null: false
     t.float "transaction_amount", null: false
     t.string "recommendation", null: false
-    t.integer "score", default: 10
     t.boolean "chargeback", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -61,8 +64,8 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_09_175142) do
 
   create_table "users", force: :cascade do |t|
     t.integer "user_id", null: false
-    t.boolean "chargeback_block", default: false
-    t.integer "score", default: 10
+    t.boolean "blocked", default: false
+    t.integer "chargeback_count", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_users_on_user_id", unique: true

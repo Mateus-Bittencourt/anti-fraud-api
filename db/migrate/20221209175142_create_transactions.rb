@@ -6,10 +6,10 @@ class CreateTransactions < ActiveRecord::Migration[7.0]
       t.references :user, null: false, foreign_key: true
       t.references :device, foreign_key: true
       t.references :card, null: false, foreign_key: true
-      t.string :transaction_date, null: false
+      t.datetime :transaction_date, null: false
       t.float :transaction_amount, null: false
       t.string :recommendation, null: false
-      t.integer :score, default: 10
+      # t.integer :score, default: 10
       t.boolean :chargeback, default: false
 
       t.timestamps
