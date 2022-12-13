@@ -15,60 +15,52 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_09_175142) do
   enable_extension "plpgsql"
 
   create_table "cards", force: :cascade do |t|
-    t.string "card_number", null: false
+    t.string "number", null: false
     t.boolean "blocked", default: false
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["card_number"], name: "index_cards_on_card_number", unique: true
+    t.index ["number"], name: "index_cards_on_number", unique: true
     t.index ["user_id"], name: "index_cards_on_user_id"
   end
 
   create_table "devices", force: :cascade do |t|
-    t.integer "device_id", null: false
     t.bigint "user_id", null: false
     t.boolean "blocked", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["device_id"], name: "index_devices_on_device_id", unique: true
     t.index ["user_id"], name: "index_devices_on_user_id"
   end
 
   create_table "merchants", force: :cascade do |t|
-    t.integer "merchant_id", null: false
     t.boolean "blocked", default: false
     t.integer "chargeback_count", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["merchant_id"], name: "index_merchants_on_merchant_id", unique: true
   end
 
   create_table "transactions", force: :cascade do |t|
-    t.integer "transaction_id", null: false
     t.bigint "merchant_id", null: false
     t.bigint "user_id", null: false
     t.bigint "device_id"
     t.bigint "card_id", null: false
-    t.datetime "transaction_date", null: false
-    t.float "transaction_amount", null: false
-    t.string "recommendation", null: false
+    t.datetime "date", null: false
+    t.float "amount", null: false
+    t.string "recommendation", default: "approve", null: false
     t.boolean "chargeback", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["card_id"], name: "index_transactions_on_card_id"
     t.index ["device_id"], name: "index_transactions_on_device_id"
     t.index ["merchant_id"], name: "index_transactions_on_merchant_id"
-    t.index ["transaction_id"], name: "index_transactions_on_transaction_id", unique: true
     t.index ["user_id"], name: "index_transactions_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
-    t.integer "user_id", null: false
     t.boolean "blocked", default: false
     t.integer "chargeback_count", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["user_id"], name: "index_users_on_user_id", unique: true
   end
 
   add_foreign_key "cards", "users"

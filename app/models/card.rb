@@ -3,5 +3,5 @@ class Card < ApplicationRecord
   has_many :transactions
 
 
-  validates :card_number, presence: true, uniqueness: true
+  validates :number, presence: true, uniqueness: true
 end
