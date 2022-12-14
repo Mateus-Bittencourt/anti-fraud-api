@@ -10,6 +10,9 @@ Rails.application.routes.draw do
   #   end
   # end
 
+  require 'sidekiq/web'
+
+  mount Sidekiq::Web => '/sidekiq'
 
   resources :transactions, only: %i[create], defaults: { format: :json }
 end

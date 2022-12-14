@@ -1,10 +1,8 @@
 class TransactionService
-  USER_CARDS_LIMIT = 3
-  USER_DEVICES_LIMIT = 3
-  USER_TRANSACTIONS_LIMIT = 15
-  USER_MERCHANT_TRANSACTIONS_LIMIT = 10
-  USER_AMOUNT_LIMIT = 20_000
-  USER_MERCHANT_AMOUNT_LIMIT = 10_000
+  USER_CARDS_LIMIT = 3 # 4 cards per user
+  USER_DEVICES_LIMIT = 3 # 4 devices per user
+
+
 
   def initialize(params)
     @params = params
@@ -17,7 +15,10 @@ class TransactionService
       if @user.blocked || @card.blocked || @device.blocked || @merchant.blocked || @user.chargeback_count.positive?
         @transaction.recommendation = 'deny'
       end
-      save_instances
+      if save_instances
+        ValidateTooManyTransactionsInARowJob.perform_later(@user, @card, @device, @merchant, @transaction)
+        ValidateTransactionsAboveCertainAmountJob.perform_later(@user, @card, @device, @merchant, @transaction)
+      end
     end
     @transaction
   end
@@ -28,7 +29,7 @@ class TransactionService
     validate_card_user
     validate_device_user
     validate_too_many_transactions_in_a_row
-    validate_transactions_above_certain_amount
+
   end
 
   def transaction_params
@@ -55,19 +56,21 @@ class TransactionService
     @card.user = @user if @card.user.nil?
     block_if_card_user_mismatch
     block_if_too_many_cards
+
   end
 
   def block_if_card_user_mismatch
     return unless @card.user != @user
+
     puts 'block_if_card_user_mismatch'
     block_user_card_device
   end
 
   def block_if_too_many_cards
     return unless @user.cards.size > USER_CARDS_LIMIT
+
     puts 'block_if_too_many_cards'
-    @user.blocked = true
-    @device.blocked = true
+    block_user_card_device
     @user.cards.each do |card|
       card.blocked = true
       card.save
@@ -82,15 +85,16 @@ class TransactionService
 
   def block_if_device_user_mismatch
     return unless @device.user != @user
+
     puts 'block_if_device_user_mismatch'
     block_user_card_device
   end
 
   def block_if_too_many_devices
     return unless @user.devices.size > USER_DEVICES_LIMIT
+
     puts 'block_if_too_many_devices'
-    @user.blocked = true
-    @card.blocked = true
+    block_user_card_device
     @user.devices.each do |device|
       device.blocked = true
       device.save
@@ -100,69 +104,19 @@ class TransactionService
   def validate_too_many_transactions_in_a_row
     block_if_transactions_have_less_than_1_minute_between
 
-    block_if_user_have_too_many_transactions_in_a_day
 
-    block_if_user_and_merchant_have_too_many_transactions_in_a_day
   end
 
   def block_if_transactions_have_less_than_1_minute_between
     if @user.transactions.size.positive? &&
-       @transaction.date <= @user.transactions.last.date + 1 &&
+       @transaction.date <= @user.transactions.last.date + 1.minute &&
        @transaction.merchant_id == @user.transactions.last.merchant_id
       puts 'block_if_transactions_have_less_than_1_minute_between'
       block_user_card_device
     end
   end
 
-  def block_if_user_have_too_many_transactions_in_a_day
-    transactions_count = 1
-    @user.transactions.each do |transaction|
-      transactions_count += 1 if transaction.date.to_date == @transaction.date.to_date
-    end
-    puts 'block_if_user_have_too_many_transactions_in_a_day' if transactions_count > USER_TRANSACTIONS_LIMIT
-    block_user_card_device if transactions_count > USER_TRANSACTIONS_LIMIT
-  end
 
-  def block_if_user_and_merchant_have_too_many_transactions_in_a_day
-    transactions_count = 0
-    @user.transactions.each do |transaction|
-      if transaction.merchant_id == @transaction.merchant_id &&
-         transaction.date.to_date == @transaction.date.to_date
-        transactions_count += 1
-      end
-    end
-    return unless transactions_count > USER_MERCHANT_TRANSACTIONS_LIMIT
-    puts 'block_if_user_and_merchant_have_too_many_transactions_in_a_day'
-    block_user_card_device
-    @merchant.blocked = true
-  end
-
-  def validate_transactions_above_certain_amount
-    user_amount = count_user_amount_in_a_day
-    user_merchant_amount = count_user_merchant_amount_in_a_day
-
-    @merchant.blocked = true if user_merchant_amount > 10_000
-    puts 'block_if_user_have_too_many_transactions_above_certain_amount_in_a_day' if user_amount > USER_AMOUNT_LIMIT
-    block_user_card_device if user_amount > USER_AMOUNT_LIMIT || user_merchant_amount > USER_MERCHANT_AMOUNT_LIMIT
-  end
-
-  def count_user_amount_in_a_day
-    user_amount = 0
-    @user.transactions.each do |transaction|
-      user_amount += transaction.amount if transaction.date.to_date == @transaction.date.to_date
-    end
-    user_amount
-  end
-
-  def count_user_merchant_amount_in_a_day
-    user_merchant_amount = 0
-    @user.transactions.each do |transaction|
-      if transaction.date.to_date == @transaction.date.to_date && transaction.merchant_id == @transaction.merchant_id
-        user_merchant_amount += transaction.amount
-      end
-    end
-    user_merchant_amount
-  end
 
   def block_user_card_device
     @user.blocked = true

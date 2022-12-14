@@ -3,8 +3,7 @@ class TransactionsController < ApplicationController
 
   # POST /api/v1/transactions
   def create
-    @transaction = TransactionService.new(params)
-
-    render json: @transaction.errors, status: :unprocessable_entity unless @transaction.create_transaction
+    @transaction = TransactionService.new(params).create_transaction
   end
+
 end
