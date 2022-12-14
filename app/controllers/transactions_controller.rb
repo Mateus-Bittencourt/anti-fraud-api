@@ -6,4 +6,9 @@ class TransactionsController < ApplicationController
     @transaction = TransactionService.new(params).create_transaction
   end
 
+  def chargeback
+    @transaction = ChargebackService.new(params).save_chargeback
+    render json: @transaction
+  end
+
 end

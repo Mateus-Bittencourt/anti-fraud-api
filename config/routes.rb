@@ -15,4 +15,6 @@ Rails.application.routes.draw do
   mount Sidekiq::Web => '/sidekiq'
 
   resources :transactions, only: %i[create], defaults: { format: :json }
+
+  patch '/chargeback/:transaction_id', to: 'transactions#chargeback', defaults: { format: :json }
 end
