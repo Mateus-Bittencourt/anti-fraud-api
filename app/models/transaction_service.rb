@@ -59,13 +59,13 @@ class TransactionService
 
   def block_if_card_user_mismatch
     return unless @card.user != @user
-
+    puts 'block_if_card_user_mismatch'
     block_user_card_device
   end
 
   def block_if_too_many_cards
     return unless @user.cards.size > USER_CARDS_LIMIT
-
+    puts 'block_if_too_many_cards'
     @user.blocked = true
     @device.blocked = true
     @user.cards.each do |card|
@@ -82,13 +82,13 @@ class TransactionService
 
   def block_if_device_user_mismatch
     return unless @device.user != @user
-
+    puts 'block_if_device_user_mismatch'
     block_user_card_device
   end
 
   def block_if_too_many_devices
     return unless @user.devices.size > USER_DEVICES_LIMIT
-
+    puts 'block_if_too_many_devices'
     @user.blocked = true
     @card.blocked = true
     @user.devices.each do |device|
@@ -109,7 +109,7 @@ class TransactionService
     if @user.transactions.size.positive? &&
        @transaction.date <= @user.transactions.last.date + 1 &&
        @transaction.merchant_id == @user.transactions.last.merchant_id
-
+      puts 'block_if_transactions_have_less_than_1_minute_between'
       block_user_card_device
     end
   end
@@ -119,7 +119,7 @@ class TransactionService
     @user.transactions.each do |transaction|
       transactions_count += 1 if transaction.date.to_date == @transaction.date.to_date
     end
-
+    puts 'block_if_user_have_too_many_transactions_in_a_day' if transactions_count > USER_TRANSACTIONS_LIMIT
     block_user_card_device if transactions_count > USER_TRANSACTIONS_LIMIT
   end
 
@@ -132,7 +132,7 @@ class TransactionService
       end
     end
     return unless transactions_count > USER_MERCHANT_TRANSACTIONS_LIMIT
-
+    puts 'block_if_user_and_merchant_have_too_many_transactions_in_a_day'
     block_user_card_device
     @merchant.blocked = true
   end
@@ -142,7 +142,7 @@ class TransactionService
     user_merchant_amount = count_user_merchant_amount_in_a_day
 
     @merchant.blocked = true if user_merchant_amount > 10_000
-
+    puts 'block_if_user_have_too_many_transactions_above_certain_amount_in_a_day' if user_amount > USER_AMOUNT_LIMIT
     block_user_card_device if user_amount > USER_AMOUNT_LIMIT || user_merchant_amount > USER_MERCHANT_AMOUNT_LIMIT
   end
 
