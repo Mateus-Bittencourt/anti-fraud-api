@@ -1,4 +1,3 @@
-# README
 
 # Ant-Fraud API
 
@@ -32,7 +31,7 @@ sudo apt-get install redis-server
 ```
 
 
-Clone this repository and install the dependencies with the following commands in your terminal:
+* Clone this repository and install the dependencies with the following commands in your terminal:
 ```
 bundle install
 ```
