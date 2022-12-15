@@ -13,19 +13,16 @@ class BackgroundService
   end
 
   def validate_too_many_transactions_in_a_row
-
     block_if_user_have_too_many_transactions_in_a_day
     block_if_user_and_merchant_have_too_many_transactions_in_a_day
   end
 
   def validate_transactions_above_certain_amount
+    user_amount = count_user_amount_in_a_day
+    user_merchant_amount = count_user_merchant_amount_in_a_day
 
-    user_amount = count_user_amount_in_a_day + @transaction.amount
-    user_merchant_amount = count_user_merchant_amount_in_a_day + @transaction.amount
-
-    puts 'block_if_user_have_too_many_transactions_above_certain_amount_in_a_day' if user_amount > USER_AMOUNT_LIMIT
     if user_merchant_amount > USER_MERCHANT_AMOUNT_LIMIT
-      puts 'block_if_user_have_too_many_transactions_above_certain_amount_in_a_day-merchant'
+
       @merchant.blocked = true
       @merchant.save
     end
@@ -35,7 +32,6 @@ class BackgroundService
   end
 
   private
-
 
   def count_user_amount_in_a_day
     user_amount = 0
@@ -56,16 +52,16 @@ class BackgroundService
   end
 
   def block_if_user_have_too_many_transactions_in_a_day
-    transactions_count = 1
+    transactions_count = 0
     @user.transactions.each do |transaction|
       transactions_count += 1 if transaction.date.to_date == @transaction.date.to_date
     end
-    puts 'block_if_user_have_too_many_transactions_in_a_day' if transactions_count > USER_TRANSACTIONS_LIMIT
+
     block_user_card_device_and_save if transactions_count > USER_TRANSACTIONS_LIMIT
   end
 
   def block_if_user_and_merchant_have_too_many_transactions_in_a_day
-    transactions_count = 1
+    transactions_count = 0
     @user.transactions.each do |transaction|
       if transaction.merchant_id == @transaction.merchant_id &&
          transaction.date.to_date == @transaction.date.to_date
@@ -74,7 +70,6 @@ class BackgroundService
     end
     return unless transactions_count > USER_MERCHANT_TRANSACTIONS_LIMIT
 
-    puts 'block_if_user_and_merchant_have_too_many_transactions_in_a_day'
     block_user_card_device_and_save
     @merchant.blocked = true
     @merchant.save

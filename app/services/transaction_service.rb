@@ -1,8 +1,6 @@
 class TransactionService
-  USER_CARDS_LIMIT = 3 # 4 cards per user
-  USER_DEVICES_LIMIT = 3 # 4 devices per user
-
-
+  USER_CARDS_LIMIT = 4 # 4 cards per user
+  USER_DEVICES_LIMIT = 4 # 4 devices per user
 
   def initialize(params)
     @params = params
@@ -29,7 +27,6 @@ class TransactionService
     validate_card_user
     validate_device_user
     validate_too_many_transactions_in_a_row
-
   end
 
   def transaction_params
@@ -67,7 +64,7 @@ class TransactionService
   end
 
   def block_if_too_many_cards
-    return unless @user.cards.size > USER_CARDS_LIMIT
+    return unless @user.cards.size >= USER_CARDS_LIMIT
 
     puts 'block_if_too_many_cards'
     block_user_card_device
@@ -91,7 +88,7 @@ class TransactionService
   end
 
   def block_if_too_many_devices
-    return unless @user.devices.size > USER_DEVICES_LIMIT
+    return unless @user.devices.size >= USER_DEVICES_LIMIT
 
     puts 'block_if_too_many_devices'
     block_user_card_device
@@ -103,8 +100,6 @@ class TransactionService
 
   def validate_too_many_transactions_in_a_row
     block_if_transactions_have_less_than_1_minute_between
-
-
   end
 
   def block_if_transactions_have_less_than_1_minute_between
@@ -115,8 +110,6 @@ class TransactionService
       block_user_card_device
     end
   end
-
-
 
   def block_user_card_device
     @user.blocked = true

@@ -10,9 +10,9 @@ class ChargebackService
     @user.chargeback_count += 1
     @merchant.chargeback_count += 1
     Transaction.transaction do
-        @transaction.save
-        @user.save
-        @merchant.save
+      @transaction.save
+      @user.save
+      @merchant.save
     end
     @transaction
   end

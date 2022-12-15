@@ -8,10 +8,10 @@
   3.1.2
 
 * Rails version
-  Rails 7.0.4
+  7.0.4
 
-* Postgre version
-  PostgreSQL 12
+* PostgreSQL version
+  12
 
 * Redis version
   4.0
@@ -24,7 +24,7 @@
 
 To install the project on your machine, follow these steps:
 
-* Configuration
+* Configuration:
   Install Redis-Server command bellow:
 ```
 sudo apt-get install redis-server
