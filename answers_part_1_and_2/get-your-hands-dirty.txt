@@ -1,4 +1,4 @@
-# README
+# Get your hands dirty
 
 
 ## DATA COLLECTION
@@ -658,3 +658,8 @@ SELECT transaction_id, device_id, card_number, merchant_id, user_id, transaction
             21321733 |        4705 |   91637 | 530033******8354 | 2019-11-24 01:13:06.879356 |             769.89 |    563499 | f
             21321542 |        4705 |   91637 | 554906******5829 | 2019-11-26 21:28:54.073914 |             550.05 |    563499 | f
       managed to circumvent the anti-fraud system, probably by changing the card brand and waiting 1 to 2 days to make a new transaction;
+
+
+## Improvement suggestion:
+
+  Use some type of token authentication for purchase confirmation.
