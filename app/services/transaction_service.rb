@@ -16,8 +16,8 @@ class TransactionService
         @transaction.recommendation = 'deny'
       end
       if save_instances
-        ValidateTooManyTransactionsInARowJob.perform_later(@user, @card, @device, @merchant, @transaction)
-        ValidateTransactionsAboveCertainAmountJob.perform_later(@user, @card, @device, @merchant, @transaction)
+        ValidateTooManyTransactionsInARowJob.perform_later(@user.id, @card.id, @device.id, @merchant.id, @transaction.id)
+        ValidateTransactionsAboveCertainAmountJob.perform_later(@user.id, @card.id, @device.id, @merchant.id, @transaction.id)
       end
     end
     @transaction

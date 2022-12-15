@@ -16,5 +16,5 @@ Rails.application.routes.draw do
 
   resources :transactions, only: %i[create], defaults: { format: :json }
 
-  patch '/chargeback/:transaction_id', to: 'transactions#chargeback', defaults: { format: :json }
+  resources :chargebacks, only: %i[update], defaults: { format: :json }
 end
