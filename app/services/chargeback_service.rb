@@ -1,6 +1,6 @@
 class ChargebackService
   def initialize(params)
-    @transaction = Transaction.find(params[:transaction_id])
+    @transaction = Transaction.find(params[:id])
     @user = @transaction.user
     @merchant = @transaction.merchant
   end
